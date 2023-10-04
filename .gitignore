@@ -1,0 +1,10 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+irma.Rproj
+ilmo_data.RDS
+ilmo_raportti_df.parquet
+aikaleima.RDS
+run.R
+update_data.R
