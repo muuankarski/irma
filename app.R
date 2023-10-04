@@ -59,7 +59,7 @@ ui <- page_navbar(
 
     <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
       <li class="ms-3"><a class="text-muted" href="https://markuskainu.fi">markuskainu.fi</a></li>
-      <li class="ms-3"><a class="text-muted" href="https://markuskainu.fi">lähde Gitlabissa</a></li>
+      <li class="ms-3"><a class="text-muted" href="https://github.com/muuankarski/irma">Lähdekoodi</a></li>
       <code class="mb-3 mb-md-0 text-muted">{versio}</code>
     </ul>
   </footer>
