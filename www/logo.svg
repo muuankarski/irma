@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="12.384406mm"
+   height="12.385975mm"
+   viewBox="0 0 12.384406 12.385975"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.1 (1:1.1+202105261517+ce6663b3b7)"
+   sodipodi:docname="logo.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <defs
+     id="defs2">
+    <style
+       id="current-color-scheme"
+       type="text/css">
+      .ColorScheme-Text {
+        color:#4d4d4d;
+      }
+      </style>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#b4b4b4"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="1"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="128.21429"
+     inkscape:cy="27.142857"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1175"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="false"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-25.495317,-105.97024)">
+    <path
+       id="path4699"
+       class="ColorScheme-Text"
+       d="m 31.778242,105.97088 a 6.1931469,6.1931521 0 0 0 -4.469469,1.81438 6.1931469,6.1931521 0 0 0 0,8.75749 6.1931469,6.1931521 0 0 0 8.757494,0 6.1931469,6.1931521 0 0 0 0,-8.75749 6.1931469,6.1931521 0 0 0 -4.288025,-1.81438 z m -0.169351,0.77413 a 5.4190015,5.4190015 0 0 1 3.622747,1.32754 l -1.087125,1.08712 a 6.1931448,3.8707156 45 0 0 -4.198821,-2.12286 5.4190015,5.4190015 0 0 1 1.663199,-0.29171 z m -2.343598,1.01152 a 5.4190015,3.0965723 45 0 1 4.330363,1.95201 l -1.90814,1.90812 -3.522956,-3.52295 a 5.4190015,3.0965723 45 0 1 1.100733,-0.33718 z m 6.518224,0.85883 a 5.4190015,5.4190015 0 0 1 1.034208,5.27232 6.1931448,3.8707156 45 0 0 -2.128893,-4.17765 z m -8.167814,0.0234 3.524469,3.52445 -1.909656,1.90967 a 5.4190015,3.0965723 45 0 1 -1.614813,-5.43412 z m 6.52881,1.6148 a 5.4190015,3.0965723 45 0 1 1.614813,5.43412 l -3.524469,-3.52447 z m -7.587209,0.18609 a 6.1931448,3.8707156 45 0 0 2.128893,4.17765 l -1.094686,1.0947 a 5.4190015,5.4190015 0 0 1 -1.034207,-5.27235 z m 5.130212,2.27102 3.522953,3.52295 a 5.4190015,3.0965723 45 0 1 -5.431096,-1.6148 z m -2.457,2.45699 a 6.1931448,3.8707156 45 0 0 4.19882,2.12286 5.4190015,5.4190015 0 0 1 -5.285945,-1.03571 z"
+       style="color:#4d4d4d;fill:#3d7eb3;fill-opacity:1;stroke:none;stroke-width:0.774143"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/aurelius/btsync/workspace/ropengov/tilastot_kartalla/www/favicon.ico"
+       inkscape:export-xdpi="97"
+       inkscape:export-ydpi="97" />
+  </g>
+</svg>

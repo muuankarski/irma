@@ -7,44 +7,106 @@ library(reactable)
 library(bslib)
 library(glue)
 library(lubridate)
+library(metathis)
 
-versio <- "v0.0.1"
+versio <- "v0.0.2"
 
-ui <- page_navbar(
+ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
   tags$style(HTML("
       .bold {
   font-weight: bold;
             }")),
-  title = "Irman ilmoittautumistiedot",
-  nav_panel("Avoimet ilmoittautumiset", 
-            
-            tags$p("Tässä sovelluksessa näet kisat joiden ilmoittatuminen on avoinna ja voit selata niihin kisoihin jo ilmoittautuneita."),
-            card(
-              card_header("Kilpailut joihin ilmoittautuminen vielä auki"),
-              reactableOutput("ilmo_data")
-            )),
-  nav_panel("Selaa ilmoittautuneita", 
-            card(card_header = "Hae ilmoittautuneita",
-              tags$p("Jos haet koko nimellä, käytä muotoa: 'Sukunimi Etunimi'"),
-              fluidRow(
-                column(3,
-                       textInput(inputId = "hakuteksti", "Syötä lisenssi tai nimi"),
-                       actionButton(inputId = "tee_haku", "Hae")
-                       ),
-                column(3,
-                       textInput(inputId = "hakuteksti_seura", "Seuran nimi")
-                ),
-                column(3,
-                       textInput(inputId = "hakuteksti_sarja", "Sarja")
-                ),
-                column(3,
-                       textInput(inputId = "hakuteksti_kisa", "Kisan nimi")
-                )
-              ),
-              tableOutput("hakutulos")
-            )),
-  nav_spacer(),
-  nav_item(tags$a("irma.suunnistusliitto.fi", href = "https://irma.suunnistusliitto.fi/")),
+  tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
+  meta() %>%
+    meta_description(description = "Irman ilmoittautumistiedot") %>%
+    meta_social(
+      title = "Irman ilmoittautumistiedot",
+      description = "Suunnistusliiton Irma-palvelun ilmoittautumistiedot",
+      url = "",
+      image = "png",
+      image_alt = "An image for social media cards",
+      twitter_creator = "@muuankarski",
+      twitter_card_type = "summary_large_image",
+      twitter_site = "@muuankarski"
+    ),
+  theme = bslib::bs_theme(bootswatch = "cosmo",version = 5,
+                          # bg = "#0b3d91", fg = "white", primary = "#FCC780",
+                          base_font = font_google("PT Sans"),
+                          code_font = font_google("Space Mono")),
+  # tags$html(HTML('<a class="sr-only sr-only-focusable" href="#maincontent">Skip to main</a>')),
+  tags$style(HTML("
+      .navbar-xyz {
+        background-color: rgb(255, 255, 255, .9);
+        border-bottom: 1px solid rgb(55, 55, 55, .4);
+      }
+      .leaflet-container {
+    background: #FFF;
+    }
+      .grey-background {
+      background-color: rgb(245, 245, 245, .9);
+      padding-top: 10px;
+      padding-right: 10px;
+      padding-bottom: 10px;
+      padding-left: 10px;
+      }
+      #map {
+    margin: auto;
+  }")),
+  tags$html(HTML('
+    <nav class="navbar sticky-top navbar-xyz">
+      <a class="navbar-brand" role="brand" href = "#"><img src = "logo.svg" style = "height: 40px; padding-right: 0px;" alt = "logo"></a>
+      <div class = "lead">Irman ilmoittautumistiedot</div>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Avaa valikko">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div role = "navigation" class="collapse navbar-collapse justify-content-end" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link text-muted" href="https://irma.suunnistusliitto.fi">irma.suunnistusliitto.fi</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-muted" href="https://github.com/muuankarski/irma">Lähdekoodi</a>
+          </li>
+        </ul>
+      </div>
+  </nav>')),
+  
+  tags$div(style = "padding-top: 30px;"),
+  tags$p("Sovelluksessa näet kisat joiden ilmoittatuminen on avoinna ja voit selata niihin kisoihin jo ilmoittautuneita."),
+  tags$p("Avoimet kisat ja ilmoittautuneet näkyvät alla ns. eri välilehdillä"),
+  textOutput("aikaleima"),
+  tags$hr(),
+  fluidRow(
+  tabsetPanel(type = "pills",
+    
+  tabPanel(title = "Avoimet kisat",
+         reactableOutput("ilmo_data")
+  ),
+  tabPanel(title = "Selaa ilmoittautuneita",
+           fluidRow(
+             tags$hr(),
+             tags$p("Jos haet koko nimellä, käytä muotoa: 'Sukunimi Etunimi'"),
+             column(3, 
+                    textInput(inputId = "hakuteksti", "Syötä lisenssi tai nimi")
+             ),
+             column(3, 
+                    textInput(inputId = "hakuteksti_seura", "Seuran nimi")
+             ),
+             column(3, 
+                    textInput(inputId = "hakuteksti_sarja", "Sarja")
+             ),
+             column(3, 
+                    textInput(inputId = "hakuteksti_kisa", "Kisan nimi")
+             )),
+           fluidRow(
+             column(3, 
+                    actionButton(inputId = "tee_haku", "Hae")
+             )),   
+         tableOutput("hakutulos")
+  )
+  )
+  ),
+
   tags$html(HTML(glue(
     '
     <div class="container">
@@ -59,7 +121,6 @@ ui <- page_navbar(
 
     <ul class="nav col-md-4 justify-content-end list-unstyled d-flex">
       <li class="ms-3"><a class="text-muted" href="https://markuskainu.fi">markuskainu.fi</a></li>
-      <li class="ms-3"><a class="text-muted" href="https://github.com/muuankarski/irma">Lähdekoodi</a></li>
       <code class="mb-3 mb-md-0 text-muted">{versio}</code>
     </ul>
   </footer>
@@ -75,8 +136,9 @@ server <- function(input, output) {
 
   output$aikaleima <- renderText({
     leima <- readRDS("aikaleima.RDS") %>% 
-      as.character()
-    glue("uusin päivitys: {leima}")
+      as.character() %>% 
+      sub("\\..+$", "", .)
+    glue("Data päivitetty: {leima}")
   })
   
     output$ilmo_data <- renderReactable({
@@ -104,7 +166,8 @@ server <- function(input, output) {
   reactable(df,
             # filterable = TRUE,
             striped = FALSE,
-            defaultPageSize = 30,
+            defaultPageSize = 10,
+            minRows = 5,
             columns = list(
               aikaa_jaljella_num = colDef(show = FALSE),
               kisa = colDef(html = TRUE),
@@ -138,7 +201,7 @@ server <- function(input, output) {
           matsit <- arrow::read_parquet("./ilmo_raportti_df.parquet") %>% 
             filter(grepl(input_hakuteksti, lisenssi, ignore.case = TRUE) & grepl(input_hakuteksti_seura, seura, ignore.case = TRUE) & grepl(input_hakuteksti_sarja, sarja, ignore.case = TRUE) & grepl(input_hakuteksti_kisa, kisa, ignore.case = TRUE))
         }
-        matsit <- matsit %>% mutate(pvm = as.character(pvm)) %>% select(-emit,-emi_tag)
+        matsit <- matsit %>% mutate(pvm = as.character(pvm)) %>% select(-emit,-emi_tag,-lisenssi)
       return(matsit)
       
     })
