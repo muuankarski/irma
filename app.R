@@ -23,7 +23,7 @@ ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
       title = "Irman ilmoittautumistiedot",
       description = "Suunnistusliiton Irma-palvelun ilmoittautumistiedot",
       url = "",
-      image = "png",
+      image = "irma.png",
       image_alt = "An image for social media cards",
       twitter_creator = "@muuankarski",
       twitter_card_type = "summary_large_image",
@@ -147,7 +147,7 @@ server <- function(input, output) {
         rename(kisapva = date) %>% 
     # mutate(date2 = as.POSIXct(ilmo_date1))
         mutate(#td = round(difftime(as.POSIXct(ilmo_date1),Sys.time())),
-          aikaa_jaljella_num = lubridate::as.period(lubridate::as.duration(lubridate::interval(Sys.time()-3600*3,as.POSIXct(ilmo_date1, tz = "Europe/Helsinki")))),
+          aikaa_jaljella_num = lubridate::as.period(lubridate::as.duration(lubridate::interval(Sys.time()+3600*2,as.POSIXct(ilmo_date1+1, tz = "Europe/Helsinki")))),
           aikaa_jaljella = sub("d", " pva", sub("H", " tuntia", sub("H .+$", "H", as.character(aikaa_jaljella_num)))),
           
           aikaa_jaljella_num = as.numeric(aikaa_jaljella_num)

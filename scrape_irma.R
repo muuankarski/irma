@@ -8,7 +8,7 @@ library(htmltools)
 
 
 vuosi_nyt <- "2023|2024"
-vuosi_nyt <- "2023"
+#vuosi_nyt <- "2023"
 irma_base <- "https://irma.suunnistusliitto.fi/irma/public/competitioncalendar/view?year=-1&areaId=-1&discipline=all&competitionOpen=ALL"
 raaka <- read_html(irma_base)
 taulu_raaka <- html_table(raaka, header = TRUE)[[5]]
