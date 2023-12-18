@@ -9,7 +9,7 @@ library(glue)
 library(lubridate)
 library(metathis)
 
-versio <- "v0.0.2"
+versio <- "v0.0.3"
 
 ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
   tags$style(HTML("

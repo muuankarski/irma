@@ -20,6 +20,8 @@ ilmo_auki <- taulu_raaka %>%
          grepl(vuosi_nyt, date)) %>% 
   mutate(seurat = substr(seurat, start = 1, stop = 25))
 
+date_today <- Sys.Date()
+
 ilmo_lista <- list()
 raportti_lista <- list()
 for (i in 1:nrow(ilmo_auki)){
@@ -27,8 +29,24 @@ for (i in 1:nrow(ilmo_auki)){
   raaka_kisa <- read_html(kisa_url)
   
   ilmo_taulu <- html_table(raaka_kisa, header = TRUE)[[4]]
-  ilmo_date1 <- ilmo_taulu[grepl("1. ilmo", ilmo_taulu[[1]]),][[2]]
-  ilmo_date2 <- ilmo_taulu[grepl("2. ilmo", ilmo_taulu[[1]]),][[2]]
+  ilmo_date1 <- ilmo_taulu[grepl("1. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
+  ilmo_date2 <- ilmo_taulu[grepl("2. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
+  ilmo_date3 <- ilmo_taulu[grepl("3. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
+  ilmo_date4 <- ilmo_taulu[grepl("4. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
+  
+  # valitaan oikea ilmodate
+  if (length(ilmo_date1) != 0 & ilmo_date1 > date_today) {
+    ilmo_date <- ilmo_date1
+  } else if (length(ilmo_date2) != 0 & ilmo_date2 > date_today){
+    ilmo_date <- ilmo_date2
+  } else if (length(ilmo_date3) != 0 & ilmo_date3 > date_today){
+    ilmo_date <- ilmo_date2
+  } else if (length(ilmo_date4) != 0 & ilmo_date4 > date_today){
+    ilmo_date <- ilmo_date4
+  } else {
+    ilmo_date <- ilmo_date1
+  }
+
   kisa_link <- ilmo_taulu[grepl("www", ilmo_taulu[[1]]),][[2]]
   kisa_link <- ifelse(kisa_link == "", NA, 
                       ifelse(!grepl("^http", kisa_link), 
@@ -40,8 +58,7 @@ for (i in 1:nrow(ilmo_auki)){
   
   
   ilmo_lista[[i]] <- tibble(kilp_numero = ilmo_auki$kilp_numero[i],
-         ilmo_date1 = as.Date(ilmo_date1, format = "%e.%m.%Y", tz = "Europe/Helsinki"),
-         ilmo_date2 = as.Date(ilmo_date2, format = "%e.%m.%Y", tz = "Europe/Helsinki"),
+         ilmo_date1 = ilmo_date,
          kisa = kisa_link,
          ilmoittaudu = HTML(glue("<a href='{kisa_url}'>Irma</a>"))
          )
