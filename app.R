@@ -16,7 +16,10 @@ ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
       .bold {
   font-weight: bold;
             }")),
-  tags$head(tags$link(rel="shortcut icon", href="favicon.ico")),
+  tags$head(
+    tags$link(rel="shortcut icon", href="favicon.ico"),
+    tags$html(HTML('<script defer data-domain="shiny.vaphana.com" src="https://plausible.vaphana.com/js/script.js"></script>'))
+    ),
   meta() %>%
     meta_description(description = "Irman ilmoittautumistiedot") %>%
     meta_social(
@@ -52,10 +55,10 @@ ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
       #map {
     margin: auto;
   }")),
-  tags$html(HTML('
+  tags$html(HTML(glue::glue('
     <nav class="navbar sticky-top navbar-xyz">
       <a class="navbar-brand" role="brand" href = "#"><img src = "logo.svg" style = "height: 40px; padding-right: 0px;" alt = "logo"></a>
-      <div class = "lead">Irman ilmoittautumistiedot</div>
+      <div class = "lead">Irman ilmoittautumistiedot<span style="font-size:12px; padding-left:10px;">{versio}</span></div>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Avaa valikko">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -69,7 +72,7 @@ ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
           </li>
         </ul>
       </div>
-  </nav>')),
+  </nav>'))),
   
   tags$div(style = "padding-top: 30px;"),
   tags$p("Sovelluksessa näet kisat joiden ilmoittatuminen on avoinna ja voit selata niihin kisoihin jo ilmoittautuneita."),
@@ -166,7 +169,7 @@ server <- function(input, output) {
   reactable(df,
             # filterable = TRUE,
             striped = FALSE,
-            defaultPageSize = 10,
+            defaultPageSize = 100,
             minRows = 5,
             columns = list(
               aikaa_jaljella_num = colDef(show = FALSE),
