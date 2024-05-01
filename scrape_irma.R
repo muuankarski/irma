@@ -7,7 +7,7 @@ library(glue)
 library(htmltools)
 
 
-vuosi_nyt <- "2023|2024"
+vuosi_nyt <- "2024"
 #vuosi_nyt <- "2023"
 irma_base <- "https://irma.suunnistusliitto.fi/irma/public/competitioncalendar/view?year=-1&areaId=-1&discipline=all&competitionOpen=ALL"
 raaka <- read_html(irma_base)
@@ -35,6 +35,7 @@ for (i in 1:nrow(ilmo_auki)){
   ilmo_date4 <- ilmo_taulu[grepl("4. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
   
   # valitaan oikea ilmodate
+  if (ilmo_date1 < date_today) next()
   if (length(ilmo_date1) != 0 & ilmo_date1 > date_today) {
     ilmo_date <- ilmo_date1
   } else if (length(ilmo_date2) != 0 & ilmo_date2 > date_today){

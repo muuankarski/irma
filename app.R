@@ -147,6 +147,7 @@ server <- function(input, output) {
     output$ilmo_data <- renderReactable({
         # generate bins based on input$bins from ui.R
   df <- readRDS("./ilmo_data.RDS") %>% 
+        filter(!is.na(ilmo_date1)) %>% 
         rename(kisapva = date) %>% 
     # mutate(date2 = as.POSIXct(ilmo_date1))
         mutate(#td = round(difftime(as.POSIXct(ilmo_date1),Sys.time())),
