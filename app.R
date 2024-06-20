@@ -9,7 +9,7 @@ library(glue)
 library(lubridate)
 library(metathis)
 
-versio <- "v0.0.3"
+versio <- "v0.1.0"
 
 ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
   tags$style(HTML("
@@ -118,7 +118,7 @@ ui <- page_fluid(#theme = bslib::bs_theme(version = 5, bootswatch = "united"),
       <a href="/" class="mb-3 me-2 mb-md-0 text-muted text-decoration-none lh-1">
         <svg class="bi" width="30" height="24"><use xlink:href="#bootstrap"/></svg>
       </a>
-      <span class="mb-3 mb-md-0 text-muted">&copy; 2023 Markus Kainu</span>
+      <span class="mb-3 mb-md-0 text-muted">&copy; 2023-2024 Markus Kainu</span>
       
     </div>
 
@@ -147,8 +147,13 @@ server <- function(input, output) {
     output$ilmo_data <- renderReactable({
         # generate bins based on input$bins from ui.R
   df <- readRDS("./ilmo_data.RDS") %>% 
-        filter(!is.na(ilmo_date1)) %>% 
-        rename(kisapva = date) %>% 
+        filter(#!is.na(ilmo_date1),
+          competitionDate > Sys.Date()) %>%
+        rename(kisapva = competitionDate,
+               # kisa = name, 
+               ilmo_date1 = firstRegistrationPeriodClosingDate,
+               seurat = club
+               ) %>% 
     # mutate(date2 = as.POSIXct(ilmo_date1))
         mutate(#td = round(difftime(as.POSIXct(ilmo_date1),Sys.time())),
           aikaa_jaljella_num = lubridate::as.period(lubridate::as.duration(lubridate::interval(Sys.time()+3600*2,as.POSIXct(ilmo_date1+1, tz = "Europe/Helsinki")))),
@@ -158,6 +163,7 @@ server <- function(input, output) {
           # aikaa_jaljella = sub("")
                # aikaa_jaljella = sprintf('%02d %02d:%02d:%02d', day(dur), hour(dur), minute(dur), second(dur))
                ) %>% 
+    filter(!is.na(aikaa_jaljella_num)) %>% 
         select(kisapva, kisa, 
                ilmo_date1, aikaa_jaljella,
                aikaa_jaljella_num,
@@ -165,9 +171,10 @@ server <- function(input, output) {
                seurat
               ) %>% 
     rename("viimeinen ilmopva" = ilmo_date1,
-           "aikaa ilmoittautua" = aikaa_jaljella)
+           "aikaa ilmoittautua" = aikaa_jaljella) %>% 
+    arrange(kisapva)
   
-  reactable(df,
+  reactable(df,searchable = TRUE,
             # filterable = TRUE,
             striped = FALSE,
             defaultPageSize = 100,
@@ -205,7 +212,7 @@ server <- function(input, output) {
           matsit <- arrow::read_parquet("./ilmo_raportti_df.parquet") %>% 
             filter(grepl(input_hakuteksti, lisenssi, ignore.case = TRUE) & grepl(input_hakuteksti_seura, seura, ignore.case = TRUE) & grepl(input_hakuteksti_sarja, sarja, ignore.case = TRUE) & grepl(input_hakuteksti_kisa, kisa, ignore.case = TRUE))
         }
-        matsit <- matsit %>% mutate(pvm = as.character(pvm)) %>% select(-emit,-emi_tag,-lisenssi)
+        matsit <- matsit %>% mutate(pvm = as.character(pvm)) %>% select(-lisenssi,-firstName,-lastName)
       return(matsit)
       
     })

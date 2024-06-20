@@ -5,92 +5,103 @@ library(dplyr)
 library(janitor)
 library(glue)
 library(htmltools)
+library(httr2)
+source("./R/irma_functions.R")
 
 
-vuosi_nyt <- "2024"
-#vuosi_nyt <- "2023"
-irma_base <- "https://irma.suunnistusliitto.fi/irma/public/competitioncalendar/view?year=-1&areaId=-1&discipline=all&competitionOpen=ALL"
-raaka <- read_html(irma_base)
-taulu_raaka <- html_table(raaka, header = TRUE)[[5]]
-taulu_raaka <- clean_names(taulu_raaka)
-taulu_raaka$date <- as.Date(taulu_raaka$paiva, format = "%e.%m.%Y", tz = "Europe/Helsinki")
+all_comp <- irma_get_all_comp()
+listID <- 
 
-ilmo_auki <- taulu_raaka %>% 
-  filter(grepl("Ilmo", toiminnot),
-         grepl(vuosi_nyt, date)) %>% 
-  mutate(seurat = substr(seurat, start = 1, stop = 25))
-
-date_today <- Sys.Date()
-
-ilmo_lista <- list()
-raportti_lista <- list()
-for (i in 1:nrow(ilmo_auki)){
-  kisa_url <- glue("https://irma.suunnistusliitto.fi/irma/public/competition/view?id={ilmo_auki$kilp_numero[i]}")
-  raaka_kisa <- read_html(kisa_url)
-  
-  ilmo_taulu <- html_table(raaka_kisa, header = TRUE)[[4]]
-  ilmo_date1 <- ilmo_taulu[grepl("1. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
-  ilmo_date2 <- ilmo_taulu[grepl("2. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
-  ilmo_date3 <- ilmo_taulu[grepl("3. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
-  ilmo_date4 <- ilmo_taulu[grepl("4. ilmo", ilmo_taulu[[1]]),][[2]] %>% as.Date(., format = "%e.%m.%Y", tz = "Europe/Helsinki")
-  
-  # valitaan oikea ilmodate
-  if (ilmo_date1 < date_today) next()
-  if (length(ilmo_date1) != 0 & ilmo_date1 > date_today) {
-    ilmo_date <- ilmo_date1
-  } else if (length(ilmo_date2) != 0 & ilmo_date2 > date_today){
-    ilmo_date <- ilmo_date2
-  } else if (length(ilmo_date3) != 0 & ilmo_date3 > date_today){
-    ilmo_date <- ilmo_date2
-  } else if (length(ilmo_date4) != 0 & ilmo_date4 > date_today){
-    ilmo_date <- ilmo_date4
-  } else {
-    ilmo_date <- ilmo_date1
-  }
-
-  kisa_link <- ilmo_taulu[grepl("www", ilmo_taulu[[1]]),][[2]]
-  kisa_link <- ifelse(kisa_link == "", NA, 
-                      ifelse(!grepl("^http", kisa_link), 
-                             paste0("https://", kisa_link), kisa_link)
-  )
-  kisanimi <- substr(ilmo_auki$kilpailupaivan_nimi[i], start = 1, stop = 40)
-  kisa_link <- ifelse(!is.na(kisa_link), HTML(glue("<a href='{kisa_link}'>{kisanimi}</a>")), 
-                      kisanimi)
-  
-  
-  ilmo_lista[[i]] <- tibble(kilp_numero = ilmo_auki$kilp_numero[i],
-         ilmo_date1 = ilmo_date,
-         kisa = kisa_link,
-         ilmoittaudu = HTML(glue("<a href='{kisa_url}'>Irma</a>"))
-         )
-  
-  # ilmoittautumisraportit
-  
-  ilmoit_raportti_link <- raaka_kisa %>% html_elements("a") %>% html_attr("href") %>% .[grepl("entries",.)]
-  if (length(ilmoit_raportti_link) == 0){
-    next()
-  } else {
-    ilmoit_raportti_link <- glue("https://irma.suunnistusliitto.fi/{ilmoit_raportti_link}")
-    ilmoit_raportti_raw <- read_html(ilmoit_raportti_link)
-    ilmoit_raportti_tbl <- ilmoit_raportti_raw %>% html_table(header = TRUE)
-    raportti_lista[[i]] <- ilmoit_raportti_tbl[[7]] %>% 
-      clean_names() %>% 
-      mutate(kisa = ilmo_auki$kilpailupaivan_nimi[i],
-             pvm = ilmo_auki$date[i]
-      )    
-  }
+lstId <- list()
+for (i in seq(all_comp)) {
+  lstId[[i]] <- all_comp[[i]]$dayId
 }
-ilmo_df <- do.call("bind_rows", ilmo_lista)
-ilmo_data <- left_join(ilmo_auki, ilmo_df)
+dayIds <- do.call("c", lstId)
 
-ilmo_raportti_df <- do.call("bind_rows", raportti_lista) %>% 
-  select(kisa,pvm,x1_pv,lisenssinumero,emit,emi_tag,nimi,seura) %>% 
-  rename(sarja = x1_pv,lisenssi = lisenssinumero)
+lstIdComp <- list()
+for (i in seq(dayIds)) {
+  
+  if (i %% 10 == 0){
+    print(i)
+    Sys.sleep(time = rnorm(1, mean = 2, sd = .8))
+  }
+  tmpId <- irma_get_comp_day_details(id = dayIds[i])
+  tmpDet <- data.frame(
+    id = if_null_replace_with_NA(tmpId$id),
+    name = if_null_replace_with_NA(tmpId$competition$name),
+    webPage = if_null_replace_with_NA(tmpId$competition$webPage),
+    club = if_null_replace_with_NA(tmpId$competition$organizingClubs[[1]]$name),
+    competitionId = if_null_replace_with_NA(tmpId$competition$id),
+    registrationAllowed = if_null_replace_with_NA(tmpId$registrationAllowed),
+    distanceType = if_null_replace_with_NA(tmpId$distanceType),
+    competitionDate = if_null_replace_with_NA(tmpId$competitionDate),
+    firstRegistrationPeriodClosingDate = if_null_replace_with_NA(tmpId$registrationPeriod$firstRegistrationPeriodClosingDate),
+    secondRegistrationPeriodClosingDate = if_null_replace_with_NA(tmpId$registrationPeriod$secondRegistrationPeriodClosingDate),
+    thirdRegistrationPeriodClosingDate = if_null_replace_with_NA(tmpId$registrationPeriod$thirdRegistrationPeriodClosingDate),
+    lateRegistrationPeriodClosingDate = if_null_replace_with_NA(tmpId$registrationPeriod$lateRegistrationPeriodClosingDate)
+  )
+  lstIdComp[[i]] <- tmpDet
+}
+compDet <- do.call("bind_rows", lstIdComp) %>% 
+  as_tibble() %>% 
+  mutate(across(c(competitionDate,firstRegistrationPeriodClosingDate,secondRegistrationPeriodClosingDate,thirdRegistrationPeriodClosingDate),
+                \(x) as.Date(x, tz = "Europe/Helsinki")+1)) %>% 
+  mutate(kisa = paste0("<a href = '",ifelse(grepl("^htt", webPage), webPage, paste0("https://",webPage)),"' target = '_blank'>",name,"</a>"),
+         ilmoittaudu = paste0("<a href = 'https://irma.suunnistusliitto.fi/registerForCompetition/",id,"' target = '_blank'>Ilmoittaudu</a>")
+  )
 
-saveRDS(object = ilmo_data, file = "ilmo_data.RDS")
-arrow::write_parquet(ilmo_raportti_df, "./ilmo_raportti_df.parquet")
+
+
+
+
+
+compReg <- list()
+for (i in 1:nrow(compDet)){
+  if (i %% 10 == 0){
+    print(i)
+    Sys.sleep(time = rnorm(1, mean = 2, sd = .8))
+  }
+  tmpReg <- irma_get_registered(compId = compDet$competitionId[i])
+  tmpReg$competitionId <- compDet$competitionId[i]
+  compReg[[i]] <- tmpReg
+}
+
+compRegDet <- list()
+for (i in seq(compReg)){
+  tmpc <- compReg[[i]]
+  if (length(tmpc) < 2) next()
+  perReg <- list()
+  for (ii in seq(tmpc)){
+    if (ii == length(tmpc)) next()
+    perReg[[ii]]  <- data.frame(
+      class = if_null_replace_with_NA(tmpc[[ii]]$dayClasses[[1]]),
+      lastName = if_null_replace_with_NA(tmpc[[ii]]$userLastName[[1]]),
+      firstName = if_null_replace_with_NA(tmpc[[ii]]$userFirstName[[1]]),
+      userLicenseNumber = if_null_replace_with_NA(tmpc[[ii]]$userLicenseNumber[[1]]),
+      clubName = if_null_replace_with_NA(tmpc[[ii]]$clubName[[1]])
+    )  
+  }
+  compRegDet[[i]] <- do.call("bind_rows", perReg) %>% 
+    mutate(competitionId = tmpc$competitionId)
+}
+datReg <- do.call("bind_rows", compRegDet) %>% 
+  distinct() %>% 
+  as_tibble() %>%
+  left_join(compDet %>% distinct(competitionId,name,competitionDate)) %>% 
+  select(-competitionId) %>% 
+  mutate(nimi = paste0(firstName," ",lastName)) %>% 
+  rename(seura = clubName,
+         lisenssi = userLicenseNumber,
+         sarja = class,
+         kisa = name,
+         pvm = competitionDate) %>% 
+  filter(pvm >= Sys.Date())
+
+
+saveRDS(object = compDet, file = "ilmo_data.RDS")
+arrow::write_parquet(datReg, "./ilmo_raportti_df.parquet")
 
 saveRDS(object = Sys.time(), file = "aikaleima.RDS")
-
+source("./run.R")
 
 
